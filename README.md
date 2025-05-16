@@ -1,7 +1,5 @@
 # 🌞 Solar Panel Tracking System | Single Axis (Arduino + Servo + LDRs)
 
-![Solar Panel Tracker](./images/solar_tracker_banner.jpg)
-
 An automated **Single-Axis Solar Panel Tracking System** built using **Arduino Uno**, **Servo Motor**, and **LDR sensors** to optimize solar energy collection by continuously adjusting the panel’s angle based on sunlight direction throughout the day.
 
 ---
