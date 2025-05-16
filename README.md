@@ -99,6 +99,7 @@ void loop() {
   delay(500);
 }
 
+```
 ## Future Improvements
 
 Implement dual-axis tracking for vertical (up-down) movement.
