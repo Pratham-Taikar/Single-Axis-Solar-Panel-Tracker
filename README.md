@@ -58,45 +58,76 @@ This project improves the efficiency of a solar panel by automatically adjusting
 ## 👨‍💻 Arduino Code
 
 ```cpp
-#include <Servo.h>
-
-Servo myservo;
-int ldrLeft1 = A0;
-int ldrLeft2 = A1;
-int ldrRight1 = A2;
-int ldrRight2 = A3;
-
-int pos = 90;
-
+#include &lt;Servo.h&gt;
+#include &lt;Wire.h&gt;
+#include &lt;LiquidCrystal_I2C.h&gt;
+LiquidCrystal_I2C lcd(0x27, 16, 2);
+#define LDR1 A0
+#define LDR2 A1
+#define error 30
+int Spoint = 90;
+Servo servo;
 void setup() {
-  myservo.attach(9);
-  myservo.write(pos);
-  pinMode(ldrLeft1, INPUT);
-  pinMode(ldrLeft2, INPUT);
-  pinMode(ldrRight1, INPUT);
-  pinMode(ldrRight2, INPUT);
-  Serial.begin(9600);
+  lcd.init();
+  lcd.backlight();
+  servo.attach(11);
+
+10
+
+  servo.write(Spoint);
+  Serial.begin(9600);
+  //welcome message
+  lcd.setCursor(0, 0);
+  lcd.print(&quot;Single - Axis&quot;);
+  lcd.setCursor(0, 1);
+  lcd.print(&quot;Solar Tracker&quot;);
+  delay(4000);  // display for 3 seconds
+  lcd.clear();
+}
+void loop() {
+  int ldr1 = readAverage(LDR1);
+  int ldr2 = readAverage(LDR2);
+  int diff = abs(ldr1 - ldr2);
+  Serial.print(&quot;LDR1: &quot;);
+  Serial.print(ldr1);
+  Serial.print(&quot; | LDR2: &quot;);
+  Serial.print(ldr2);
+  Serial.print(&quot; | Diff: &quot;);
+  Serial.println(diff);
+  if (diff &gt; error) {
+    if (ldr1 &gt; ldr2 &amp;&amp; Spoint &gt; 0) {
+      Spoint = Spoint - 3;
+    }
+    if (ldr1 &lt; ldr2 &amp;&amp; Spoint &lt; 180) {
+      Spoint = Spoint + 3;
+    }
+    servo.write(Spoint);
+    delay(30);
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print(&quot;Angle of Panel:&quot;);
+    lcd.setCursor(0, 1);
+    lcd.print(Spoint);
+  }
+  else {
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print(&quot;Attained&quot;);
+    lcd.setCursor(0, 1);
+    lcd.print(&quot;Equilibrium.&quot;);
+  }
+  delay(300);  // safe refresh rate
 }
 
-void loop() {
-  int leftValue = (analogRead(ldrLeft1) + analogRead(ldrLeft2)) / 2;
-  int rightValue = (analogRead(ldrRight1) + analogRead(ldrRight2)) / 2;
+11
 
-  int diff = leftValue - rightValue;
-
-  if (diff > 50) {
-    if (pos < 170) pos += 1;
-    myservo.write(pos);
-    delay(50);
-  } else if (diff < -50) {
-    if (pos > 10) pos -= 1;
-    myservo.write(pos);
-    delay(50);
-  }
-
-  Serial.print("Left: "); Serial.print(leftValue);
-  Serial.print(" | Right: "); Serial.println(rightValue);
-  delay(500);
+int readAverage(int pin) {
+  int total = 0;
+  for (int i = 0; i &lt; 10; i++) {
+    total += analogRead(pin);
+    delay(2);
+  }
+  return total / 10;
 }
 
 ```
