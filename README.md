@@ -58,77 +58,86 @@ This project improves the efficiency of a solar panel by automatically adjusting
 ## 👨‍💻 Arduino Code
 
 ```cpp
-#include &lt;Servo.h&gt;
-#include &lt;Wire.h&gt;
-#include &lt;LiquidCrystal_I2C.h&gt;
+
+#include <Servo.h>
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+
 LiquidCrystal_I2C lcd(0x27, 16, 2);
+
 #define LDR1 A0
 #define LDR2 A1
 #define error 30
+
 int Spoint = 90;
+
 Servo servo;
+
 void setup() {
-  lcd.init();
-  lcd.backlight();
-  servo.attach(11);
+  lcd.init();
+  lcd.backlight();
+  servo.attach(11);
+  servo.write(Spoint);
+  Serial.begin(9600);
 
-10
-
-  servo.write(Spoint);
-  Serial.begin(9600);
-  //welcome message
-  lcd.setCursor(0, 0);
-  lcd.print(&quot;Single - Axis&quot;);
-  lcd.setCursor(0, 1);
-  lcd.print(&quot;Solar Tracker&quot;);
-  delay(4000);  // display for 3 seconds
-  lcd.clear();
+  //welcome message
+  lcd.setCursor(0, 0);
+  lcd.print("Single - Axis");
+  lcd.setCursor(0, 1);
+  lcd.print("Solar Tracker");
+  delay(4000);  // display for 3 seconds
+  lcd.clear();
 }
+
 void loop() {
-  int ldr1 = readAverage(LDR1);
-  int ldr2 = readAverage(LDR2);
-  int diff = abs(ldr1 - ldr2);
-  Serial.print(&quot;LDR1: &quot;);
-  Serial.print(ldr1);
-  Serial.print(&quot; | LDR2: &quot;);
-  Serial.print(ldr2);
-  Serial.print(&quot; | Diff: &quot;);
-  Serial.println(diff);
-  if (diff &gt; error) {
-    if (ldr1 &gt; ldr2 &amp;&amp; Spoint &gt; 0) {
-      Spoint = Spoint - 3;
-    }
-    if (ldr1 &lt; ldr2 &amp;&amp; Spoint &lt; 180) {
-      Spoint = Spoint + 3;
-    }
-    servo.write(Spoint);
-    delay(30);
-    lcd.clear();
-    lcd.setCursor(0, 0);
-    lcd.print(&quot;Angle of Panel:&quot;);
-    lcd.setCursor(0, 1);
-    lcd.print(Spoint);
-  }
-  else {
-    lcd.clear();
-    lcd.setCursor(0, 0);
-    lcd.print(&quot;Attained&quot;);
-    lcd.setCursor(0, 1);
-    lcd.print(&quot;Equilibrium.&quot;);
-  }
-  delay(300);  // safe refresh rate
-}
+  int ldr1 = readAverage(LDR1);
+  int ldr2 = readAverage(LDR2);
 
-11
+  int diff = abs(ldr1 - ldr2);
+
+  Serial.print("LDR1: ");
+  Serial.print(ldr1);
+  Serial.print(" | LDR2: ");
+  Serial.print(ldr2);
+  Serial.print(" | Diff: ");
+  Serial.println(diff);
+
+  if (diff > error) {
+    if (ldr1 > ldr2 && Spoint > 0) {
+      Spoint = Spoint - 3;
+    }
+    if (ldr1 < ldr2 && Spoint < 180) {
+      Spoint = Spoint + 3;
+    }
+    servo.write(Spoint);
+    delay(30);
+
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("Angle of Panel:");
+    lcd.setCursor(0, 1);
+    lcd.print(Spoint);
+  } 
+  else {
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("Attained");
+    lcd.setCursor(0, 1);
+    lcd.print("Equilibrium.");
+  }
+
+  delay(300);  // safe refresh rate
+}
 
 int readAverage(int pin) {
-  int total = 0;
-  for (int i = 0; i &lt; 10; i++) {
-    total += analogRead(pin);
-    delay(2);
-  }
-  return total / 10;
+  int total = 0;
+  for (int i = 0; i < 10; i++) {
+    total += analogRead(pin);
+    delay(2);
+  }
+  return total / 10;
 }
+
 
 ```
 ## Future Improvements
